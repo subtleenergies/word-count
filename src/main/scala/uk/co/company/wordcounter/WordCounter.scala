@@ -1,3 +1,5 @@
+package uk.co.company.wordcounter
+
 import scala.collection.mutable
 
 /**

@@ -1,3 +1,5 @@
+package uk.co.company.wordcounter
+
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
