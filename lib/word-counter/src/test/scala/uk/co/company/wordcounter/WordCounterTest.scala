@@ -1,23 +1,12 @@
 package uk.co.company.wordcounter
 
+import com.sun.java.accessibility.util.Translator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class WordCounterTest extends AnyFlatSpec with Matchers {
 
-  val naiveTranslator = new Translator {
-    override def translate(word: String): String = {
-      word.toLowerCase match {
-        case "flor" => "flower"
-        case "blume" => "flower"
-        case "grande" => "large"
-        case "gross" => "large"
-        case _ => word
-      }
-    }
-  }
-
-  def newCounter() = new WordCounter(naiveTranslator)
+  def newCounter() = new WordCounter(Translator.naiveTranslator)
 
   "addWords" should "accept a single word" in {
     val counter = newCounter()

@@ -3,5 +3,5 @@
 # ~~~~
 
 GET     /                               microservice.ServiceController.index
-GET     /wordCount                      microservice.ServiceController.index
-POST    /wordCount                      microservice.ServiceController.index
+GET     /wordCount/:word                microservice.ServiceController.getWordCount(word: String)
+POST    /wordCount                      microservice.ServiceController.postWords
