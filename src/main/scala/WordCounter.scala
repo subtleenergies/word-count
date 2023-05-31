@@ -7,10 +7,24 @@ trait Translator {
   def translate(word: String): String
 }
 
-class WordCounter(translator: Translator) {
+/**
+ * Word counter class as described by the README requirements.
+ *
+ * A simple, final OO class is used here allow multiple instances and encapsulation of the internal implementation.
+ * To make it simple an lightweight we avoid using any other libraries.
+ *
+ * Error handling uses runtime exceptions to make the library compatible with other JVM languages such as Java.
+ * If we were using in a Scala-only context, I would probably prefer to use Either[Error, Unit] to make
+ * more elegant error processing.
+ *
+ * @param translator
+ */
+final class WordCounter(translator: Translator) {
 
   /**
-   * A mutable Map (default implementation HashMap) is an efficient way to store and retrieve words using a hash table
+   * A mutable Map (default implementation HashMap) is an efficient way to store and retrieve words using a hash table.
+   * However this is not thread-safe.
+   * If (and only if) we needed thread-safety I would use java.util.concurrent.ConcurrentHashMap.
    */
   private val wordCounts = mutable.Map[String,Int]()
 
@@ -36,10 +50,6 @@ class WordCounter(translator: Translator) {
    *
    * The alphabetic character check is a naive implementation that only accepts english alphabetical characters.
    * Depending on requirements we could use unicode letters \p{L} instead.
-   *
-   * Error handling using runtime exceptions makes the library compatible with other JVM languages such as Java.
-   * If we were using in a Scala-only context, I would probably prefer to return Either[Error, Unit] to make
-   * error processing nicer to use in Scala.
    *
    * @param words
    */
