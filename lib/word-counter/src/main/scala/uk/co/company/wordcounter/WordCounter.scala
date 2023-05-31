@@ -3,13 +3,6 @@ package uk.co.company.wordcounter
 import scala.collection.mutable
 
 /**
- * This would be defined in an external translation library
- */
-trait Translator {
-  def translate(word: String): String
-}
-
-/**
  * Word counter class as described by the README requirements.
  *
  * A simple, final OO class is used here allow multiple instances and encapsulation of the internal implementation.
