@@ -1,6 +1,5 @@
 package uk.co.company.wordcounter
 
-import com.sun.java.accessibility.util.Translator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -16,6 +15,12 @@ class WordCounterTest extends AnyFlatSpec with Matchers {
   it should "accept multiple words" in {
     val counter = newCounter()
     counter.addWords("the", "quick", "brown", "fox") shouldEqual {}
+  }
+
+  it should "reject zero words" in {
+    val counter = newCounter()
+    val thrown = the[IllegalArgumentException] thrownBy counter.addWords()
+    thrown.getMessage should equal("Provide at least one word")
   }
 
   it should "NOT allow addition of words with non-alphabetic characters" in {

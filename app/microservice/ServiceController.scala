@@ -15,11 +15,13 @@ import javax.inject.Inject
  * A production service would probably require user authentication/authorisation and stronger input validation.
  *
  * The word counter is in global scope for the controller so different clients will see counts
- * for each other's words, which is unlikely to be the requirement.
+ * for each other's words, which might be valid if it was a collaborative system.
  *
- * A more likely requirement would be for a particular client to be able to add and count their own words,
- * in which case they would need to be stored in a session-specific way.  This could not be done reliably
- * using the word counter as it is, because best practice is for the microservice to be stateless.
+ * Another more likely requirement would be for a particular client to be able to add and count their own words,
+ * in which case they would need to be stored in a session-specific way.
+ *
+ * With autoscaling/loadbalancing, the client may not
+ * reach the same instance in subsequent calls, so best practice is for the server instances to be statelesss.
  *
  * So for a real service to work resiliently, there would likely need to be some persistent store, such
  * as Redis or ElasticSearch.
@@ -34,22 +36,31 @@ class ServiceController @Inject() (cc: ControllerComponents) extends AbstractCon
     Ok("It works!")
   }
 
+  /**
+   * POST a plain text body with space-delimited words to /wordCount
+   *
+   * @return
+   */
   def postWords() = Action { request =>
-    val words = request.body.asText.getOrElse("").split(" ")
-    if (words.isEmpty || words.head.isEmpty) {
-      BadRequest("Need at least one word")
-    } else try {
-      wordCounter.addWords(words.head, words.tail: _*)
+    val words = request.body.asText.getOrElse("").split(" ").toList
+    try {
+      wordCounter.addWords(words: _*)
       Ok("Thanks for the words!")
     } catch {
       case e: IllegalArgumentException =>
         BadRequest(e.getMessage)
-      case e =>
+      case e: Throwable =>
         logger.error(e.getMessage, e)
         InternalServerError("The server was unable to process your request")
     }
   }
 
+  /**
+   * GET /wordCount/{word} to get occurrences for that word.
+   *
+   * @param word
+   * @return
+   */
   def getWordCount(word: String) = Action {
     if (word.isEmpty || word.length > 100 || !word.matches("^[a-zA-Z]+")) {
       BadRequest("Unexpected word")

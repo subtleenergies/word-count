@@ -1,5 +1,23 @@
 # Word Counter
 
+A coding test project for a potential client.
+
+The main sbt project is a Play Framework microservice that calls a library in sub-project `lib/word-counter`
+
+To run, from the project root:
+```shell
+$ sbt run
+```
+
+Use a tool like Postman to send a POST request to http://localhost:9000/wordCount with a plain text body e.g.
+```text
+foo bar baz
+```
+
+Then to check occurrences of the words use a GET request (or browser) to e.g. http://localhost:9000/wordCount/foo
+
+## Code test specification
+
 Write a library called "WordCounter". It should have the following two distinct methods:
 
 1. method that allows you to add one or more words

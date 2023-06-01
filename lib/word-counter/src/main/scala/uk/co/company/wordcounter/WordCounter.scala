@@ -9,7 +9,7 @@ import scala.collection.mutable
  * To make it simple an lightweight we avoid using any other libraries.
  *
  * Error handling uses runtime exceptions to make the library compatible with other JVM languages such as Java.
- * If we were using in a Scala-only context, I would probably prefer to use Either[Error, Unit] to make
+ * If we were using in a Scala-only context, I would probably prefer to use Either[Error, Unit] to make for
  * more elegant error processing.
  *
  * @param translator
@@ -17,11 +17,11 @@ import scala.collection.mutable
 final class WordCounter(translator: Translator) {
 
   /**
-   * A mutable Map (default implementation HashMap) is an efficient way to store and retrieve words using a hash table.
-   * However this is not thread-safe.
-   * If (and only if) we needed thread-safety I would use java.util.concurrent.ConcurrentHashMap.
+   * A HashMap is an efficient way to store and retrieve words using a hash table.
+   * To work in any execution context, java.util.concurrent.ConcurrentHashMap provides a thread-safe implementation.
+   * If we know we don't need concurrent operation, we could use scala.mutable.HashMap for better performance.
    */
-  private val wordCounts = mutable.Map[String,Int]()
+  private val wordCounts = new java.util.concurrent.ConcurrentHashMap[String,Int]()
 
   /**
    * transforms a given word into a map key assuming that:
@@ -30,16 +30,15 @@ final class WordCounter(translator: Translator) {
    * @param word
    * @return
    */
-  private def getKey(word: String): String = {
+  private def getKeyFor(word: String): String = {
     translator.translate(word).toLowerCase
   }
 
   /**
    * Method that allows you to add one or more words.
    *
-   * Assumption is that zero words is not permitted, so this implementation requires at least one at compile time.
+   * Assumption is that zero words is not permitted, so this implementation rejects calls with no words.
    * Alternatively we could:
-   * - check for empty list and raise a runtime error
    * - do nothing / call has no effect
    * - use something like cats NonEmptyList
    *
@@ -48,16 +47,19 @@ final class WordCounter(translator: Translator) {
    *
    * @param words
    */
-  def addWords(word: String, moreWords: String*): Unit = {
-    val words = word :: moreWords.toList
+  def addWords(words: String*): Unit = {
+    if (words.isEmpty)
+      throw new IllegalArgumentException("Provide at least one word")
+
     words.foreach { word =>
       if (!word.matches("^[a-zA-Z]+$"))
         throw new IllegalArgumentException("Words must not contain non-alphabetical characters")
     }
+
     words.foreach { word =>
-      val key = getKey(word)
-      val count = wordCounts.getOrElse(key, 0)
-      wordCounts.addOne(key, count + 1)
+      val key = getKeyFor(word)
+      val count = wordCounts.getOrDefault(key, 0)
+      wordCounts.put(key, count + 1)
     }
   }
 
@@ -71,7 +73,7 @@ final class WordCounter(translator: Translator) {
    * @return
    */
   def countOccurrences(word: String): Int = {
-    val key = getKey(word)
-    wordCounts.getOrElse(key, 0)
+    val key = getKeyFor(word)
+    wordCounts.getOrDefault(key, 0)
   }
 }

@@ -3,10 +3,6 @@ name := "word-counter"
 organization := "uk.co.company"
 version := "1.0"
 
-libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "3.2.15" % Test
-)
-
 def commonSettings = Seq(
   scalaVersion := "2.13.10"
 )
@@ -27,6 +23,9 @@ lazy val translator = (project in file("lib/translator"))
 lazy val `word-counter` = (project in file("lib/word-counter"))
   .dependsOn(translator)
   .settings(
-    commonSettings
+    commonSettings,
+    libraryDependencies ++= Seq(
+      "org.scalatest" %% "scalatest" % "3.2.15" % Test
+    )
   )
 
